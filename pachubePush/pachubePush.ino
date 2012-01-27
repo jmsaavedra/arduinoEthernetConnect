@@ -46,9 +46,8 @@ void setup() {
   Serial.begin(9600);
   if (Ethernet.begin(mac) == 0) {
     Serial.println("Failed to configure Ethernet using DHCP");
-    // no point in carrying on, so do nothing forevermore:
-    for(;;)
-      ;
+    // Configure manually:
+    Ethernet.begin(mac, ip);
   }
   // give the ethernet module time to boot up:
   delay(1000);
@@ -126,3 +125,4 @@ void sendData(String thisData) {
     Serial.println("connection failed");
   }
 }
+
