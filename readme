@@ -1,0 +1,8 @@
+
+//---- arduinoEthernetConnect -----
+
+>> PachubePush
+	sensor data to the cloud
+	
+>> PachubePull
+	read a feed
