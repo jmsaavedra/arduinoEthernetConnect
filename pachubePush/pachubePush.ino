@@ -29,6 +29,10 @@
 byte mac[] = { 
   0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
 
+// fill in an available IP address on your network here,
+// for manual configuration:
+IPAddress ip(10,0,1,20);
+
 // institution specific Pachube feed address
 String feedAddr = "45999";  //https://pachube.com/feeds/45999
 
@@ -41,6 +45,11 @@ const int postingInterval = 10000;  //delay between updates to Pachube.com
 
 String dataString;
 
+int currButtonVal;
+int prevButtonVal;
+int myDigitalVal;
+int myAnalogVal;
+
 void setup() {
   // start the ethernet connection and serial port:
   Serial.begin(9600);
@@ -51,9 +60,30 @@ void setup() {
   }
   // give the ethernet module time to boot up:
   delay(1000);
+   pinMode(3, INPUT);  //button on dPin 3
+  pinMode(5, OUTPUT); //LED on dPin 5
+  myDigitalVal = 0;
+  myAnalogVal = 0;
+  prevButtonVal = 0;
+
 }
 
 void loop() {
+  
+      //--- button and sensor reads
+    currButtonVal = digitalRead(3);  //read our button
+    if(currButtonVal != prevButtonVal){ //check for state change
+      prevButtonVal = currButtonVal;
+      if(prevButtonVal == 1){ 
+        myDigitalVal ++ ;           //add one on each press
+        if(myDigitalVal > 1){       //count between 0 and 1.
+          myDigitalVal = 0;
+        }
+      }
+    }
+
+    digitalWrite(5, myDigitalVal);    //turn LED on/off to represent myDigitalVal
+    
   // read the analog sensor:
   //int analogSensor = analogRead(A0);   
   int analogSensor = random(1023);
@@ -62,9 +92,9 @@ void loop() {
 
   // you can append multiple readings to this String if your
   // pachube feed is set up to handle multiple values:
-  int digitalSensor = digitalRead(3);
+  //int digitalSensor = digitalRead(3);
   dataString += ",";
-  dataString += String(digitalSensor);
+  dataString += String(myDigitalVal);
 
   // if there's incoming data from the net connection.
   // send it out the serial port.  This is for debugging
@@ -125,4 +155,5 @@ void sendData(String thisData) {
     Serial.println("connection failed");
   }
 }
+
 
