@@ -1,0 +1,30 @@
+#######################################
+# Syntax Coloring Map For ERxPachube
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+ERxPachube	KEYWORD1
+ERxPachubeDataOut	KEYWORD1
+ERxPachubeDataIn	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+addData	KEYWORD2
+updateData	KEYWORD2
+
+countDatastreams	KEYWORD2
+getValueInt	KEYWORD2
+getValueString	KEYWORD2
+getValueFloat	KEYWORD2
+getIdByIndex	KEYWORD2
+getValueByIndex	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
