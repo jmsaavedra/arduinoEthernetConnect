@@ -34,7 +34,10 @@ byte mac[] = {
 IPAddress ip(10,0,1,20);
 
 // institution specific Pachube feed address
-String feedAddr = "45999";  //https://pachube.com/feeds/45999
+String feedAddr = "45999";  //http://pachube.com/feeds/45999
+
+// your API key
+String ApiKey = "5VCx3ftgRHd6AT2leyay2ySmARPb9ZUsHY-KgtgTLoLKMg0VEqjxYIbRo0KAItkWXOlnDSdQyECjAaQ9Vb307npyLewgxEp3JE8yUN8YdR-mAIMB0KM8MuploVzpVt6T";
 
 // initialize the library instance:
 EthernetClient client;
@@ -45,12 +48,17 @@ const int postingInterval = 10000;  //delay between updates to Pachube.com
 
 String dataString;
 
-int currButtonVal;
-int prevButtonVal;
-int myDigitalVal;
-int myAnalogVal;
+const int buttonPin = 7;
+const int ledPin = 9;
+int currButtonVal = 0;
+int prevButtonVal = 0;
+int myDigitalVal = 0;
+int myAnalogVal = 0;
 
 void setup() {
+  pinMode(buttonPin, INPUT);  //button
+  pinMode(ledPin, OUTPUT); //LED
+
   // start the ethernet connection and serial port:
   Serial.begin(9600);
   if (Ethernet.begin(mac) == 0) {
@@ -60,39 +68,32 @@ void setup() {
   }
   // give the ethernet module time to boot up:
   delay(1000);
-   pinMode(3, INPUT);  //button on dPin 3
-  pinMode(5, OUTPUT); //LED on dPin 5
-  myDigitalVal = 0;
-  myAnalogVal = 0;
-  prevButtonVal = 0;
-
 }
 
 void loop() {
-  
-      //--- button and sensor reads
-    currButtonVal = digitalRead(3);  //read our button
-    if(currButtonVal != prevButtonVal){ //check for state change
-      prevButtonVal = currButtonVal;
-      if(prevButtonVal == 1){ 
-        myDigitalVal ++ ;           //add one on each press
-        if(myDigitalVal > 1){       //count between 0 and 1.
-          myDigitalVal = 0;
-        }
+
+  //--- button read
+  currButtonVal = digitalRead(buttonPin);  //read our button
+  if(currButtonVal != prevButtonVal){ //check for state change
+    prevButtonVal = currButtonVal;
+    if(prevButtonVal == 1){ 
+      myDigitalVal ++ ;           //add one on each press
+      if(myDigitalVal > 1){       //count between 0 and 1.
+        myDigitalVal = 0;
       }
     }
+  }
+  digitalWrite(ledPin, myDigitalVal);    //turn LED on/off to represent myDigitalVal
 
-    digitalWrite(5, myDigitalVal);    //turn LED on/off to represent myDigitalVal
-    
-  // read the analog sensor:
-  //int analogSensor = analogRead(A0);   
-  int analogSensor = random(1023);
+  //--- sensor read
+  int analogSensor = analogRead(A0);   
+  //int analogSensor = random(1023); //randomize
+
   // convert the data to a String to send it:
   dataString = String(analogSensor);
 
   // you can append multiple readings to this String if your
   // pachube feed is set up to handle multiple values:
-  //int digitalSensor = digitalRead(3);
   dataString += ",";
   dataString += String(myDigitalVal);
 
@@ -107,7 +108,6 @@ void loop() {
   // if there's no net connection, but there was one last time
   // through the loop, then stop the client:
   if (!client.connected() && lastConnected) {
-    Serial.println();
     Serial.println("disconnecting.");
     client.stop();
   }
@@ -115,7 +115,12 @@ void loop() {
   // if you're not connected, and ten seconds have passed since
   // your last connection, then connect again and send data:
   if(!client.connected() && (millis() - lastConnectionTime > postingInterval)) {
-    sendData(dataString);
+    Serial.println("\n------- SEND DATA -------"); //some serial monitor feedback
+    Serial.print("analog, digital = ");
+    Serial.println(dataString);
+    Serial.println("-------------------------\n");
+
+    sendData(dataString); //SEND!
   }
   // store the state of the connection for next time through
   // the loop:
@@ -124,19 +129,15 @@ void loop() {
 
 // this method makes a HTTP connection to the server:
 void sendData(String thisData) {
-  Serial.println("----SEND DATA ----");
-  Serial.print("analog, digital = ");
-  Serial.println(dataString);
-  Serial.println("------------------");
+
   // if there's a successful connection:
   if (client.connect("www.pachube.com", 80)) {
     Serial.println("connecting...");
     // send the HTTP PUT request. 
-    // fill in your feed address here:
     client.print("PUT /api/" + feedAddr + ".csv HTTP/1.1\n");
     client.print("Host: www.pachube.com\n");
     // fill in your Pachube API key here:
-    client.print("X-PachubeApiKey: 5VCx3ftgRHd6AT2leyay2ySmARPb9ZUsHY-KgtgTLoLKMg0VEqjxYIbRo0KAItkWXOlnDSdQyECjAaQ9Vb307npyLewgxEp3JE8yUN8YdR-mAIMB0KM8MuploVzpVt6T\n");
+    client.print("X-PachubeApiKey: " + ApiKey + "\n");
     client.print("Content-Length: ");
     client.println(thisData.length(), DEC);
 
@@ -155,5 +156,9 @@ void sendData(String thisData) {
     Serial.println("connection failed");
   }
 }
+
+
+
+
 
 
