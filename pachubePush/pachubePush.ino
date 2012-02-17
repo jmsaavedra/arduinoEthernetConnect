@@ -134,11 +134,11 @@ void loop() {
 void sendData(String thisData) {
 
   // if there's a successful connection:
-  if (client.connect("www.pachube.com", 80)) {
+  if (client.connect("api.pachube.com", 80)) {
     Serial.println("connecting...");
     // send the HTTP PUT request. 
-    client.print("PUT /api/" + feedAddr + ".csv HTTP/1.1\n");
-    client.print("Host: www.pachube.com\n");
+    client.print("PUT /v2/feeds/" + feedAddr + ".csv HTTP/1.1\n");
+    client.print("Host: api.pachube.com\n");
     // fill in your Pachube API key here:
     client.print("X-PachubeApiKey: " + ApiKey + "\n");
     client.print("Content-Length: ");
