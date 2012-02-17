@@ -11,8 +11,11 @@
  
  Circuit:
  * Analog sensor attached to analog in 0
+ * Button attached to pin 7
+ * LED attached to pin 9
  * Ethernet shield attached to pins 10, 11, 12, 13
  
+ based on code
  created 15 March 2010
  updated 4 Sep 2010
  by Tom Igoe
